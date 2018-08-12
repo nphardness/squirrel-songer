@@ -1,0 +1,67 @@
+<table class="table">
+    <thead>
+    <tr>
+        <th></th>
+        <th>Composer/Movie/Game</th>
+        <th>Title</th>
+        <th>Requester</th>
+        <th>Request time</th>
+        <th>Status</th>
+        <th>Last played</th>
+
+        {% if perms.request_manager.can_edit %}
+        <th>Priority</th>
+        <th>Played</th>
+        {% endif %}
+    </tr>
+    </thead>
+
+    {% for piece in pieces %}
+    <tr>
+        <td>
+            {{ forloop.counter }}
+        </td>
+        <td>
+            {{piece.composer}}
+        </td>
+        <td>
+            {{piece.title}}
+        </td>
+        <td>
+            {{piece.requester}}
+        </td>
+        <td>
+            {{piece.request_time}}
+        </td>
+        <td>
+            {{piece.status}}
+        </td>
+        <td>
+            {{piece.last_played}}
+        </td>
+
+        {% if perms.request_manager.can_edit %}
+        <td>
+            <div class="form-group">
+            <form action="{% url 'request_manager:piece-request-priority-update' piece_request_id=piece.request_id %}"
+                  method="post" id="priority-update-{{piece.id}}">
+                {% csrf_token %}
+                <input id="priority-{{piece.id}}" type="number"
+                       name="priority" value="{{ piece.priority }}" onfocus=""
+                       onchange="this.form.submit()">
+            </form>
+            </div>
+        </td>
+        <td>
+            <form action="{% url 'request_manager:piece-request-update' piece_request_id=piece.request_id %}"
+                  method="post">
+                {% csrf_token %}
+                <input id="played-{{piece.id}}" type="text" name="played" value="{{ True }}" hidden>
+                <input type="checkbox" {% if piece.played %} checked {% endif %} onchange="this.form.submit()"/>
+            </form>
+        </td>
+        {% endif %}
+
+    </tr>
+    {% endfor %}
+</table>

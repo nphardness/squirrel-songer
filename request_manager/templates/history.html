@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+
+{% block title %}Queue{% endblock %}
+{% block content %}
+
+<div class="container">
+
+    <h2>Played pieces</h2>
+    {% with played_pieces as pieces %}
+        {% include 'stream_queue_request_table.html' %}
+    {% endwith %}
+</div>
+{% endblock content %}
+

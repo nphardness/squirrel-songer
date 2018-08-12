@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+
+{% block title %}Pieces list{% endblock %}
+{% block content %}
+
+<div class="container">
+    <h2>Pieces list</h2>
+    <table class="table">
+        <tr>
+            <th>Composer/Movie/Game</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Last played</th>
+            <th>Number of requests</th>
+            <th></th>
+        </tr>
+        {% for piece in pieces %}
+        <tr>
+            <td>
+               {{ piece.composer }}
+            </td>
+            <td>
+                {{ piece.title }}
+            </td>
+            <td>
+                {{ piece.type }}
+            </td>
+            <td>
+                {{piece.last_played}}
+            </td>
+            <td>
+                {{piece.number_of_requests}}
+            </td>
+            <td>
+                {% if user.is_authenticated %}
+                <div class="form-group">
+                <form action="{% url 'request_manager:piece-request-create' piece_id=piece.id %}"
+                  method="post" id="piece-request-{{piece.id}}">
+                    <input type="text" value="{{user.username}}" id="requester" name="requester" hidden>
+                    {% csrf_token %}
+                    <input class="btn btn-submit" type="submit" value="Request!">
+                    </form>
+                </div>
+                {% endif %}
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="container">
+    <h2>Inactive Pieces list</h2>
+    <table class="table">
+        {% for piece in inactive_pieces %}
+        <tr>
+            <td>
+               {{ piece.composer }}
+            </td>
+            <td>
+                {{ piece.title }}
+            </td>
+            <td>
+                {{piece.last_played}}
+            </td>
+            <td>
+                {{piece.number_of_requests}}
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock content %}
+
