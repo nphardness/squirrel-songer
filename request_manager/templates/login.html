@@ -11,7 +11,7 @@
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
   </form>
-
+{% load socialaccount %}
 <a href="{% provider_login_url 'twitch' %}">Sign Up</a>
 {% endblock %}
 

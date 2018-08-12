@@ -37,7 +37,7 @@ class PiecesListView(ListView):
             'composer': piece.composer,
             'nick': piece.nick,
             'type': str(piece.type).lower(),
-            'hard': piece.level >= 8,  # TODO: add permission for that!
+            'hard': piece.level is not None and piece.level >= 8,  # TODO: add permission for that!
             'last_played': last_played,
             'status': piece.status,
             'number_of_requests': piece.number_of_requests,
