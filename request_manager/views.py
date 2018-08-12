@@ -89,7 +89,7 @@ class StreamQueueView(ListView):
             'status': piece.piece.status,
             'played': piece.played,
             'type': str(piece.piece.type).lower(),
-            'hard': piece.piece.level >= 8,
+            'hard': piece.piece.level is not None and piece.piece.level >= 8,
             'priority': piece.priority,
             'currently_playing': piece.currently_playing,
             'request_id': piece.id,
