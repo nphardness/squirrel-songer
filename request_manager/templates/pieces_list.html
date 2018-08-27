@@ -4,23 +4,30 @@
 {% block title %}Pieces list{% endblock %}
 {% block content %}
 
-<div class="container">
+
+
+<div class="container" id="pieces-list">
+    <input class="search" placeholder="Search" />
+
     <h2>Pieces list</h2>
     <table class="table">
+        <thead>
         <tr>
-            <th>Composer/Movie/Game</th>
-            <th>Title</th>
+            <th><a href="#" class="sort" data-sort="composer">Composer/Movie/Genre</a></th>
+            <th><a href="#" class="sort" data-sort="title">Title</a></th>
             <th>Type</th>
             <th>Last played</th>
-            <th>Number of requests</th>
+            <th><a href="#" class="sort" data-sort="number-of-requests">Number of requests</a></th>
             <th></th>
         </tr>
+        </thead>
+        <tbody class="list">
         {% for piece in pieces %}
         <tr>
-            <td>
+            <td class="composer">
                {{ piece.composer }}
             </td>
-            <td>
+            <td class="title">
                 {{ piece.title }}
             </td>
             <td>
@@ -46,31 +53,46 @@
             </td>
 
         </tr>
+
         {% endfor %}
+        </tbody>
     </table>
 </div>
 
-<div class="container">
-    <h2>Inactive Pieces list</h2>
-    <table class="table">
-        {% for piece in inactive_pieces %}
-        <tr>
-            <td>
-               {{ piece.composer }}
-            </td>
-            <td>
-                {{ piece.title }}
-            </td>
-            <td>
-                {{piece.last_played}}
-            </td>
-            <td>
-                {{piece.number_of_requests}}
-            </td>
+<!--<div class="container">-->
+    <!--<h2>Inactive Pieces list</h2>-->
+    <!--<table class="table">-->
+        <!--{% for piece in inactive_pieces %}-->
+        <!--<tr>-->
+            <!--<td>-->
+               <!--{{ piece.composer }}-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--{{ piece.title }}-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--{{piece.last_played}}-->
+            <!--</td>-->
+            <!--<td>-->
+                <!--{{piece.number_of_requests}}-->
+            <!--</td>-->
 
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+        <!--</tr>-->
+        <!--{% endfor %}-->
+    <!--</table>-->
+<!--</div>-->
+
+
+{%block js %}
+<script>
+  var options = {
+  valueNames: [ 'composer', 'title' ]
+};
+
+var userList = new List('pieces-list', options);
+console.log(userList);
+
+</script>
+{% endblock js %}
 {% endblock content %}
 

@@ -180,3 +180,4 @@ class PieceRequestCreateView(FormView):
     def get_success_url(self):
         return reverse('request_manager:queue')
 
+# TODO: fix http://localhost:8000/accounts/email/

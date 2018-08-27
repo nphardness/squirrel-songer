@@ -25,7 +25,7 @@ SECRET_KEY = 'SECRET!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['159.65.160.54']
+ALLOWED_HOSTS = ['159.65.160.54', 'localhost']
 
 
 # Application definition
@@ -65,7 +65,9 @@ ROOT_URLCONF = 'repertoirebot.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates', 'allauth'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -162,3 +164,5 @@ ACCOUNT_EMAIL_VERIFICATION = None
 ACCOUNT_USERNAME_REQUIRED = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+STREAMER_SONGLIST_TOKEN = 'SECRET !'

@@ -5,10 +5,12 @@ class PieceStatus:
     NEW = 'NEW'
     PROGRESS = 'PROGRESS'
     REJECTED = 'REJECTED'
+    INACTIVE = 'INACTIVE'
     DONE = 'DONE'
     STATUS = (
         (NEW, 'new'),
         (PROGRESS, 'in progress'),
+        (INACTIVE, 'inactive'),
         (REJECTED, 'rejected'),
         (DONE, 'done'),
     )
@@ -52,3 +54,9 @@ class PieceModel(models.Model):
 
     def __str__(self):
         return str(self.composer) + ' - ' + str(self.title) + ' ' + str(self.movement)
+
+    def str_for_txt(self):
+        if self.movement:
+            return str(self)
+        else:
+            return str(self.composer) + ' - ' + str(self.title)

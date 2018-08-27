@@ -1,14 +1,14 @@
 import json
 
+import requests
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from repertoire_manager.models import PieceModel, PieceType
+from repertoire_manager.models import PieceModel, PieceType, PieceStatus
 
 
 class Command(BaseCommand):
     help = 'Imports pieces from json got from StreamerSongList page'
     attributes_ids = {
-        'game': 1032,
-        'transcription': 1031,
         'other': 1030,
         'anime': 1029,
         'movie': 1028,
@@ -17,9 +17,11 @@ class Command(BaseCommand):
     }
 
     def add_arguments(self, parser):
-        parser.add_argument('path', type=str)
+        parser.add_argument('--path', type=str)
+        parser.add_argument('--api', type=bool)
 
-    def _save_piece(self, piece, db_pieces, piece_type: PieceType, level=None):
+    def _save_piece(self, piece, db_pieces, piece_type: PieceType, level=None,
+                    status=PieceStatus.NEW):
         for db_piece in db_pieces:
             if piece['artist'] == db_piece.composer:
                 if db_piece.title in piece['name']:
@@ -29,6 +31,7 @@ class Command(BaseCommand):
         new_piece = PieceModel(
             composer=piece['artist'],
             title=piece['name'],
+            status=status,
             type=piece_type,
             number_of_requests=piece['timesPlayed'],
             level=level,
@@ -51,19 +54,26 @@ class Command(BaseCommand):
         db_pieces = PieceModel.objects.all()
         for piece in pieces:
             if_saved = False
+            is_new = piece['isNew']
+            is_active = piece['active']
+            status = PieceStatus.NEW
+            if is_new:
+                status = PieceStatus.NEW
+            if not is_active:
+                status = PieceStatus.INACTIVE # that's is ok to overwrite new status
             level = 10 if self.attributes_ids['hard'] in piece['attributes'] else None
             if self.attributes_ids['classical'] in piece['attributes']:
-                if_saved = self._save_piece(piece, db_pieces, PieceType.CLASSICAL, level=level)
-            elif self.attributes_ids['game'] in piece['attributes']:
-                if_saved = self._save_piece(piece, db_pieces, PieceType.GAME, level=level)
+                if_saved = self._save_piece(
+                    piece, db_pieces, PieceType.CLASSICAL, level=level, status=status)
             elif self.attributes_ids['movie'] in piece['attributes']:
-                if_saved = self._save_piece(piece, db_pieces, PieceType.MOVIE, level=level)
+                if_saved = self._save_piece(
+                    piece, db_pieces, PieceType.MOVIE, level=level,  status=status)
             elif self.attributes_ids['anime'] in piece['attributes']:
-                if_saved = self._save_piece(piece, db_pieces, PieceType.ANIME, level=level)
-            elif self.attributes_ids['transcription'] in piece['attributes']:
-                if_saved = self._save_piece(piece, db_pieces, PieceType.TRANSCRIPTION, level=level)
+                if_saved = self._save_piece(
+                    piece, db_pieces, PieceType.ANIME, level=level,  status=status)
             else:
-                if_saved = self._save_piece(piece, db_pieces, PieceType.OTHER, level=level)
+                if_saved = self._save_piece(
+                    piece, db_pieces, PieceType.OTHER, level=level,  status=status)
             if if_saved:
                 number_of_imported_pieces += 1
             else:
@@ -72,10 +82,27 @@ class Command(BaseCommand):
 
         return number_of_imported_pieces
 
-    def handle(self, *args, **options):
-        with open(options['path'], 'r') as f:
-            pieces = json.loads(f.read())
+    @staticmethod
+    def get_pieces_from_streamer_songlist():
+        headers = {'Authorization': settings.STREAMER_SONGLIST_TOKEN}
+        url = 'https://api.streamersonglist.com/api/streamers/105/songs?showInactive=true'
+        r = requests.get(url, headers=headers)
+        pieces = r.json()['items']
+        with open('pieces.json', 'w') as f:
+            f.write(json.dumps(pieces))
+        return pieces
 
+    def handle(self, *args, **options):
+        pieces = None
+        if options['api']:
+            pieces = self.get_pieces_from_streamer_songlist()
+        elif options['path']:
+            with open(options['path'], 'r') as f:
+                pieces = json.loads(f.read())
+        else:
+            self.stdout.write(
+                self.style.ERROR('You must determine if reading pieces from json or from api'))
+            return
         number_of_imported_pieces = self._save_pieces(pieces)
 
         self.stdout.write(self.style.SUCCESS('Imported %s pieces' % number_of_imported_pieces))

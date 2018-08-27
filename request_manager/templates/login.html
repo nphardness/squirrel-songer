@@ -3,15 +3,9 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-  <h2>Login</h2>
-  <form method="post">
-      <div class="form-group">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Login</button>
-      </div>
-  </form>
+
 {% load socialaccount %}
-<a href="{% provider_login_url 'twitch' %}">Sign Up</a>
+{% providers_media_js %}
+<a class="btn btn-primary" href="{% provider_login_url 'twitch' %}">Log In</a>
 {% endblock %}
 
