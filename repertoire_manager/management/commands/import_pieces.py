@@ -2,19 +2,13 @@ import json
 
 import requests
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
+
 from repertoire_manager.models import PieceModel, PieceType, PieceStatus
 
 
 class Command(BaseCommand):
     help = 'Imports pieces from json got from StreamerSongList page'
-    attributes_ids = {
-        'other': 1030,
-        'anime': 1029,
-        'movie': 1028,
-        'classical': 1027,
-        'hard':  1035
-    }
 
     def add_arguments(self, parser):
         parser.add_argument('--path', type=str)
@@ -42,14 +36,13 @@ class Command(BaseCommand):
 
     def _save_pieces(self, pieces: list) -> int:
         """
-        Each pieces has keys:
+        Each piece from streamersonglist has keys:
         ['id', 'name', 'artist', 'createdAt', 'learned', 'active',
         'StreamerId', 'bypassRequestLimit', 'attributes', 'timesPlayed',
         'lastPlayed', 'isNew', 'inQueue'])
-        :param pieces:
-        :return:
         """
         number_of_imported_pieces = 0
+        attributes_ids = settings.STREAMER_ATTRIBUTES_IDS
 
         db_pieces = PieceModel.objects.all()
         for piece in pieces:
@@ -61,14 +54,14 @@ class Command(BaseCommand):
                 status = PieceStatus.NEW
             if not is_active:
                 status = PieceStatus.INACTIVE # that's is ok to overwrite new status
-            level = 10 if self.attributes_ids['hard'] in piece['attributes'] else None
-            if self.attributes_ids['classical'] in piece['attributes']:
+            level = 10 if attributes_ids['hard'] in piece['attributes'] else None
+            if attributes_ids['classical'] in piece['attributes']:
                 if_saved = self._save_piece(
                     piece, db_pieces, PieceType.CLASSICAL, level=level, status=status)
-            elif self.attributes_ids['movie'] in piece['attributes']:
+            elif attributes_ids['movie'] in piece['attributes']:
                 if_saved = self._save_piece(
                     piece, db_pieces, PieceType.MOVIE, level=level,  status=status)
-            elif self.attributes_ids['anime'] in piece['attributes']:
+            elif attributes_ids['anime'] in piece['attributes']:
                 if_saved = self._save_piece(
                     piece, db_pieces, PieceType.ANIME, level=level,  status=status)
             else:
@@ -85,7 +78,8 @@ class Command(BaseCommand):
     @staticmethod
     def get_pieces_from_streamer_songlist():
         headers = {'Authorization': settings.STREAMER_SONGLIST_TOKEN}
-        url = 'https://api.streamersonglist.com/api/streamers/105/songs?showInactive=true'
+        url = 'https://api.streamersonglist.com/api/streamers/{}/songs?showInactive=true'.format(
+            settings.STREAMER_ID)
         r = requests.get(url, headers=headers)
         pieces = r.json()['items']
         with open('pieces.json', 'w') as f:

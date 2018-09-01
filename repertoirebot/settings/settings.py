@@ -165,4 +165,9 @@ ACCOUNT_USERNAME_REQUIRED = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# STREAMERSONGLIST
+
 STREAMER_SONGLIST_TOKEN = 'SECRET !'
+STREAMER_ID = 'PUT STREAMER ID HERE (NUMBER), MAYBE USERNAME WILL WORK TOO'
+# map of your categories names to their ids in streamersonglist (f.e. {'classical': 1, 'movie': 2})
+STREAMER_ATTRIBUTES_IDS = {}
