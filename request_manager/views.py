@@ -5,7 +5,7 @@ from django.http import QueryDict, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView, FormView, CreateView
 
-from repertoire_manager.models import PieceModel
+from repertoire_manager.models import PieceModel, PieceType, PieceTags
 from request_manager.forms import PieceRequestUpdateForm, PieceRequestPriorityUpdateForm, \
     PieceRequestCreateForm
 from request_manager.models import PieceRequestModel
@@ -31,12 +31,13 @@ class PiecesListView(ListView):
             last_played = piece.last_played.strftime('%d-%m-%Y')
         else:
             last_played = '---'
+        piece_types = list(PieceTags.objects.filter(piece_id=piece.id).all())
         piece_dict = {
             'id': piece.id,
             'title': piece.title,
             'composer': piece.composer,
             'nick': piece.nick,
-            'type': str(piece.type).lower(),
+            'type': ', '.join([p.type for p in piece_types]),
             'hard': piece.level is not None and piece.level >= 8,  # TODO: add permission for that!
             'last_played': last_played,
             'status': piece.status,
@@ -75,7 +76,7 @@ class StreamQueueView(ListView):
     def _convert_to_piece_request_dict(piece: PieceRequestModel) -> dict:
         last_played = piece.piece.last_played
         if last_played:
-            last_played = piece.piece.last_played.strftime('%d-%m-%Y')
+            last_played = piece.piece.last_played.strftime('%d-%m-%Y %H:%M')
         else:
             last_played = '---'
         piece_dict = {
@@ -84,11 +85,11 @@ class StreamQueueView(ListView):
             'composer': piece.piece.composer,
             'nick': piece.piece.nick,
             'requester': piece.requester,
-            'request_time': piece.request_time.strftime('%d-%m-%Y'),
+            'request_time': piece.request_time.strftime('%d-%m-%Y %H:%M'),
             'last_played': last_played,
             'status': piece.piece.status,
             'played': piece.played,
-            'type': str(piece.piece.type).lower(),
+            # 'type': str(piece.piece.type).lower(), TODO: what about type?
             'hard': piece.piece.level is not None and piece.piece.level >= 8,
             'priority': piece.priority,
             'currently_playing': piece.currently_playing,
@@ -180,4 +181,3 @@ class PieceRequestCreateView(FormView):
     def get_success_url(self):
         return reverse('request_manager:queue')
 
-# TODO: fix http://localhost:8000/accounts/email/

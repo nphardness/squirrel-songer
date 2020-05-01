@@ -1,12 +1,14 @@
+from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect
 from django.urls import path
 
 from .views import StreamQueueView, PieceRequestUpdateView, \
     PieceRequestPriorityUpdateView, PieceRequestCreateView, PiecesListView, Home, HistoryView
 
-from django.contrib.auth import views as auth_views
 app_name = 'request_manager'
 urlpatterns = [
-    path('', Home.as_view(), name='home'),
+    path('', lambda request: redirect('queue/', permanent=False)),
+    path('home/', Home.as_view(), name='home'),
     path('queue/', StreamQueueView.as_view(), name='queue'),
     path('history/', HistoryView.as_view(), name='history'),
     path('pieces-list/', PiecesListView.as_view(), name='pieces-list'),
@@ -17,6 +19,6 @@ urlpatterns = [
          PieceRequestPriorityUpdateView.as_view(), name='piece-request-priority-update'),
     path('piece-request-create/<int:piece_id>/', PieceRequestCreateView.as_view(),
          name='piece-request-create'),
-    path(r'login/', auth_views.login,  {'template_name': 'login.html'}, name='login'),
-    path(r'logout/', auth_views.logout, {'next_page': '/'}, name='logout'),
+    path(r'login/', auth_views.LoginView,  {'template_name': 'login.html'}, name='login'),
+    path(r'logout/', auth_views.LogoutView, {'next_page': '/'}, name='logout'),
 ]

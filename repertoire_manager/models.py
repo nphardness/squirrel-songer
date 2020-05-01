@@ -23,15 +23,16 @@ class PieceType:
     GAME = 'GAME'
     TRANSCRIPTION = 'TRANSCRIPTION'
     OTHER = 'OTHER'
+    HALLOWEEN = 'HALLOWEEN'
 
     TYPE = (
         (MOVIE, 'movie'),
         (CLASSICAL, 'classical'),
         (ANIME, 'anime'),
         (GAME, 'game'),
-        (TRANSCRIPTION, 'transcription'),
-        (OTHER, 'other')
-    )
+        (TRANSCRIPTION, 'transcription'),  # TODO: remove transcription
+        (OTHER, 'other'),
+        (HALLOWEEN, 'halloween'))
 
 
 class PieceModel(models.Model):
@@ -39,10 +40,11 @@ class PieceModel(models.Model):
     For movie, anime, game - title is the name of the entity.
     """
 
+    s_id = models.IntegerField(default=-1)  # id from streamerssonglist - to remove when not used anymore
     composer = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     status = models.CharField(max_length=32, choices=PieceStatus.STATUS, default=PieceStatus.NEW)
-    type = models.CharField(max_length=32, choices=PieceType.TYPE, default=PieceType.OTHER)
+
     number_of_requests = models.IntegerField(default=0)
 
     level = models.IntegerField(null=True, blank=True)
@@ -60,3 +62,9 @@ class PieceModel(models.Model):
             return str(self)
         else:
             return str(self.composer) + ' - ' + str(self.title)
+
+
+class PieceTags(models.Model):
+    piece_id = models.ForeignKey(PieceModel, on_delete=models.SET_NULL, null=True)
+    type = models.CharField(max_length=32, choices=PieceType.TYPE, default=PieceType.OTHER)
+    s_id = models.IntegerField(default=-1)  # id from streamersonglist

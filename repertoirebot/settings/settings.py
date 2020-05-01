@@ -169,5 +169,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 STREAMER_SONGLIST_TOKEN = 'SECRET !'
 STREAMER_ID = 'PUT STREAMER ID HERE (NUMBER), MAYBE USERNAME WILL WORK TOO'
+STREAMER_NAME = 'PUT STREAMER NAME HERE'
+
 # map of your categories names to their ids in streamersonglist (f.e. {'classical': 1, 'movie': 2})
 STREAMER_ATTRIBUTES_IDS = {}
+
+# BOT
+
+TWITCH_HOST = "irc.twitch.tv"  # Hostname of the IRC-Server in this case twitch's
+TWITCH_PORT = 6667  # Default IRC-Port
+TWITCH_BOT_CHANNEL = "#your-channel-name"  # Channelname = #{Nickname}
+TWITCH_BOT_NICK = 'bot twitch account name'  # Nickname = Twitch username
+TWITCH_BOT_OAUTH = 'oauth:put-token-here!'  # retrive from www.twitchapps.com/tmi/ for your bot account
